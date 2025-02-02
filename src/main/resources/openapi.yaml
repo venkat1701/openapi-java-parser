@@ -1,0 +1,58 @@
+openapi: 3.0.3
+info:
+  title: Simple Items API
+  version: "1.0.0"
+  description: A simple API to manage items.
+servers:
+  - url: https://api.example.com/v1
+paths:
+  /items:
+    get:
+      summary: Retrieve a list of items.
+      responses:
+        '200':
+          description: A JSON array of items.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+    post:
+      summary: Create a new item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Item created successfully.
+  /items/{itemId}:
+    get:
+      summary: Retrieve a specific item by ID.
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single item.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
