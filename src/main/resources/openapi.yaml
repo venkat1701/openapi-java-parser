@@ -1,53 +1,173 @@
 openapi: 3.0.3
 info:
-  title: Simple Items API
-  version: "1.0.0"
-  description: A simple API to manage items.
+  title: Large API Specification
+  description: A comprehensive API specification for testing wrapper generation.
+  version: 1.0.0
 servers:
   - url: https://api.example.com/v1
+
 paths:
-  /items:
+  /users:
     get:
-      summary: Retrieve a list of items.
+      summary: Get all users
+      operationId: getAllUsers
       responses:
         '200':
-          description: A JSON array of items.
+          description: A list of users
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Item'
+                  $ref: '#/components/schemas/User'
     post:
-      summary: Create a new item.
+      summary: Create a new user
+      operationId: createUser
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Item'
+              $ref: '#/components/schemas/User'
       responses:
         '201':
-          description: Item created successfully.
-  /items/{itemId}:
+          description: User created successfully
+
+  /users/{userId}:
     get:
-      summary: Retrieve a specific item by ID.
+      summary: Get user by ID
+      operationId: getUserById
       parameters:
-        - in: path
-          name: itemId
+        - name: userId
+          in: path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: A single item.
+          description: User details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Item'
+                $ref: '#/components/schemas/User'
+    put:
+      summary: Update user
+      operationId: updateUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+    delete:
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted successfully
+
+  /auth/login:
+    post:
+      summary: User login
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /products:
+    get:
+      summary: Get all products
+      operationId: getAllProducts
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /orders:
+    post:
+      summary: Create an order
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Order created
+
+  /payments:
+    post:
+      summary: Process a payment
+      operationId: processPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+      responses:
+        '200':
+          description: Payment processed
+
 components:
   schemas:
-    Item:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    Product:
       type: object
       properties:
         id:
@@ -55,4 +175,26 @@ components:
         name:
           type: string
         price:
+          type: number
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        productId:
+          type: string
+        quantity:
+          type: integer
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        orderId:
+          type: string
+        amount:
           type: number
