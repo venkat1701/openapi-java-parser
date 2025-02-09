@@ -1,18 +1,21 @@
-package io.github.venkat1701;
+package io.github.venkat1701.build.utils.okhttp;
 
 import com.squareup.javapoet.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.parser.OpenAPIV3Parser;
+
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class ApiWrapperGenerator {
+/**
+ * This ApiWrapperGenerator is responsible for generating the Client SDK with Okhttp.
+ * @author Venkat
+ */
+public class OkHttpApiClientGenerator {
     public static void generateApiWrapper(OpenAPI openAPI, String outputDir) throws IOException {
-        // yeh voh class hai jismei saare code jayenge and last mei flush hoga.
         TypeSpec.Builder apiWrapperClassBuilder = TypeSpec.classBuilder("ApiWrapper")
                 .addModifiers(Modifier.PUBLIC);
         openAPI.getPaths().forEach((path, pathItem) -> {
@@ -22,10 +25,6 @@ public class ApiWrapperGenerator {
                 if (methodName == null || methodName.isEmpty()) {
                     methodName = httpMethod.name().toLowerCase() + "_" + path;
                 }
-                // basically this will create a separate method for each openapi spec path
-                // and then handle request-response gracefully with exc handling
-
-                //using code block was important and I just made use of jep 378 to write efficient and more readable code.
                 MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(sanitizeMethodName(methodName))
                         .addModifiers(Modifier.PUBLIC)
                         .returns(String.class)
@@ -61,18 +60,4 @@ public class ApiWrapperGenerator {
         return methodName.replaceAll("[^a-zA-Z0-9]", "_");
     }
 
-    public static void main(String[] args) {
-        try {
-            String specPath = "src/main/resources/openapi.yaml";
-            OpenAPI openAPI = new OpenAPIV3Parser().read(specPath);
-            if (openAPI == null) {
-                System.err.println("Failed to parse the OpenAPI specification.");
-                return;
-            }
-            generateApiWrapper(openAPI, "./generated-sources");
-            System.out.println("API wrapper generated successfully.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
