@@ -25,33 +25,46 @@ public class OkHttpApiClientGenerator {
                 if (methodName == null || methodName.isEmpty()) {
                     methodName = httpMethod.name().toLowerCase() + "_" + path;
                 }
+
                 MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(sanitizeMethodName(methodName))
                         .addModifiers(Modifier.PUBLIC)
                         .returns(String.class)
                         .addParameter(String.class, "jsonRequestBody")
-                        .addCode("""
-                            OkHttpClient client = new OkHttpClient();
-                            RequestBody body = RequestBody.create(jsonRequestBody, MediaType.get("application/json"));
-                            Request request = new Request.Builder()
-                                .url("$L")
-                                .method("$L", body)
-                                .build();
-                            try (Response response = client.newCall(request).execute()) {
-                                return response.body() != null ? response.body().string() : null;
-                            } catch (IOException e) {
-                                System.err.println("Network error occurred: " + e.getMessage());
-                                return "Network error";
-                            } catch (Exception e) {
-                                System.err.println("Unexpected error: " + e.getMessage());
-                                return "Unexpected error";
-                            }
-                        """, path, httpMethod.name())
                         .addException(IOException.class);
+                CodeBlock methodBody = CodeBlock.builder()
+                        .addStatement("$T client = new $T()", ClassName.get("okhttp3", "OkHttpClient"), ClassName.get("okhttp3", "OkHttpClient"))
+                        .addStatement("$T body = $T.create(jsonRequestBody, $T.get(\"application/json\"))",
+                                ClassName.get("okhttp3", "RequestBody"),
+                                ClassName.get("okhttp3", "RequestBody"),
+                                ClassName.get("okhttp3", "MediaType"))
+                        .addStatement("$T request = new $T.Builder()"
+                                        + ".url($S)"
+                                        + ".method($S, body)"
+                                        + ".build()",
+                                ClassName.get("okhttp3", "Request"),
+                                ClassName.get("okhttp3", "Request"),
+                                path,
+                                httpMethod.name())
+                        .beginControlFlow("try ($T response = client.newCall(request).execute())",
+                                ClassName.get("okhttp3", "Response"))
+                        .addStatement("return response.body() != null ? response.body().string() : null")
+                        .endControlFlow()
+                        .beginControlFlow("catch ($T e)", IOException.class)
+                        .addStatement("$T.err.println(\"Network error occurred: \" + e.getMessage())", System.class)
+                        .addStatement("return \"Network error\"")
+                        .endControlFlow()
+                        .beginControlFlow("catch ($T e)", Exception.class)
+                        .addStatement("$T.err.println(\"Unexpected error: \" + e.getMessage())", System.class)
+                        .addStatement("return \"Unexpected error\"")
+                        .endControlFlow()
+                        .build();
+
+                methodBuilder.addCode(methodBody);
                 apiWrapperClassBuilder.addMethod(methodBuilder.build());
             });
         });
         TypeSpec apiWrapperClass = apiWrapperClassBuilder.build();
-        JavaFile javaFile = JavaFile.builder("io.github.venkat1701.api", apiWrapperClass)
+        JavaFile javaFile = JavaFile.builder("com.example.api", apiWrapperClass)
                 .build();
         javaFile.writeTo(Paths.get(outputDir));
     }
