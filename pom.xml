@@ -6,7 +6,7 @@
 
     <groupId>io.github.venkat1701</groupId>
     <artifactId>openapi-java-parser</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
