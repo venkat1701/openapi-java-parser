@@ -42,6 +42,8 @@ When developing applications, directly handling HTTP requests, retries, response
    target/openapi-java-parser-{latest-version}.jar
    ```
 ## Usage
+### Video Link
+You can visit our youtube channel to check the working of it: [https://youtu.be/nEoP3hjDhIQ](Youtube)
 ### Running the CLI Tool
 To generate an API wrapper, run the JAR with the following options:
 
