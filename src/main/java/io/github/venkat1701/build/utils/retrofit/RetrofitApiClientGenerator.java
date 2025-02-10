@@ -1,9 +1,9 @@
 package io.github.venkat1701.build.utils.retrofit;
 
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import io.swagger.v3.oas.models.OpenAPI;
 
+import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -16,19 +16,19 @@ public class RetrofitApiClientGenerator {
 
     public static void generateRetrofitApiWrapper(OpenAPI openAPI, String outputDir) throws IOException {
         TypeSpec.Builder apiInterface = TypeSpec.interfaceBuilder("RetrofitAPIClient")
-                .addModifiers(javax.lang.model.element.Modifier.PUBLIC);
+                .addModifiers(Modifier.PUBLIC);
 
         openAPI.getPaths().forEach((path, pathItem) -> {
             pathItem.readOperationsMap().forEach((httpMethod, operation) -> {
                 apiInterface.addMethod(
-                        com.squareup.javapoet.MethodSpec.methodBuilder(operation.getOperationId())
-                                .addModifiers(javax.lang.model.element.Modifier.PUBLIC, javax.lang.model.element.Modifier.ABSTRACT)
+                        MethodSpec.methodBuilder(operation.getOperationId())
+                                .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
                                 .addAnnotation(
-                                        com.squareup.javapoet.AnnotationSpec.builder(
-                                                        com.squareup.javapoet.ClassName.get("retrofit2.http", httpMethod.name()))
+                                        AnnotationSpec.builder(
+                                                        ClassName.get("retrofit2.http", httpMethod.name()))
                                                 .addMember("value", "$S", path)
                                                 .build())
-                                .returns(com.squareup.javapoet.ClassName.get("retrofit2", "Call"))
+                                .returns(ClassName.get("retrofit2", "Call"))
                                 .build());
             });
         });
